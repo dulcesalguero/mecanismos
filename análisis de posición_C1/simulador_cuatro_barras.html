@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cuatro Barras - Análisis de Posición</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+        }
+        
+        /* Custom styling for the range slider */
+        input[type=range] {
+            -webkit-appearance: none;
+            width: 100%;
+            background: transparent;
+        }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 18px;
+            width: 18px;
+            border-radius: 50%;
+            background: #1e3a8a;
+            cursor: pointer;
+            margin-top: -6px;
+            border: 2px solid white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 6px;
+            cursor: pointer;
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+        input[type=range]:focus {
+            outline: none;
+        }
+        
+        /* Canvas container */
+        #canvas-container {
+            background-image: 
+                linear-gradient(to right, #e2e8f0 1px, transparent 1px),
+                linear-gradient(to bottom, #e2e8f0 1px, transparent 1px);
+            background-size: 40px 40px;
+            background-position: center center;
+        }
+    </style>
+</head>
+<body class="h-screen w-full flex flex-col md:flex-row overflow-hidden text-slate-800">
+
+    <!-- Control Panel -->
+    <aside class="w-full md:w-96 bg-white shadow-xl z-10 flex flex-col h-full overflow-y-auto border-r border-slate-200">
+        <div class="p-6 border-b border-slate-200">
+            <h1 class="text-sm font-bold tracking-widest text-slate-500 uppercase mb-1">Mecanismos</h1>
+            <h2 class="text-xl font-bold text-slate-900">CUATRO BARRAS</h2>
+            <h3 class="text-sm font-semibold text-slate-400">ANÁLISIS DE POSICIÓN</h3>
+        </div>
+
+        <div class="p-6 flex-1 flex flex-col gap-6">
+            
+            <!-- Longitudes -->
+            <div>
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Longitudes</h4>
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-slate-50 border border-slate-200 p-2 rounded-lg">
+                        <label class="block text-xs font-medium text-slate-500 mb-1">a · manivela</label>
+                        <input type="number" id="input-a" value="6" step="0.1" min="0.1" class="w-full bg-transparent text-lg font-semibold text-slate-800 outline-none">
+                    </div>
+                    <div class="bg-slate-50 border border-slate-200 p-2 rounded-lg">
+                        <label class="block text-xs font-medium text-slate-500 mb-1">b · acoplador</label>
+                        <input type="number" id="input-b" value="7" step="0.1" min="0.1" class="w-full bg-transparent text-lg font-semibold text-slate-800 outline-none">
+                    </div>
+                    <div class="bg-slate-50 border border-slate-200 p-2 rounded-lg">
+                        <label class="block text-xs font-medium text-slate-500 mb-1">c · salida</label>
+                        <input type="number" id="input-c" value="7" step="0.1" min="0.1" class="w-full bg-transparent text-lg font-semibold text-slate-800 outline-none">
+                    </div>
+                    <div class="bg-slate-50 border border-slate-200 p-2 rounded-lg">
+                        <label class="block text-xs font-medium text-slate-500 mb-1">d · bancada</label>
+                        <input type="number" id="input-d" value="9" step="0.1" min="0.1" class="w-full bg-transparent text-lg font-semibold text-slate-800 outline-none">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Rama -->
+            <div>
+                <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">Configuración</h4>
+                <div class="flex gap-4">
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="branch" value="-1" checked class="w-4 h-4 text-blue-800">
+                        <span class="text-sm font-medium text-slate-700">Rama Abierta</span>
+                    </label>
+                    <label class="flex items-center gap-2 cursor-pointer">
+                        <input type="radio" name="branch" value="1" class="w-4 h-4 text-blue-800">
+                        <span class="text-sm font-medium text-slate-700">Rama Cruzada</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Entrada Theta 2 -->
+            <div>
+                <div class="flex justify-between items-center mb-2">
+                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Entrada (θ₂)</h4>
+                    <div class="flex items-center bg-slate-50 border border-slate-200 rounded px-2 py-1">
+                        <input type="number" id="input-theta2-num" value="30" class="w-16 bg-transparent text-right font-semibold text-slate-800 outline-none">
+                        <span class="text-slate-500 ml-1">°</span>
+                    </div>
+                </div>
+                <input type="range" id="input-theta2" min="0" max="360" value="30">
+            </div>
+
+            <hr class="border-slate-200">
+
+            <!-- Resultados -->
+            <div>
+                <div class="flex justify-between items-end mb-3">
+                    <h4 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Resultados</h4>
+                    <span id="status-badge" class="px-2 py-1 text-[10px] font-bold uppercase rounded-full bg-green-100 text-green-700">Ensambla</span>
+                </div>
+                
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between p-3 bg-red-50/50 border-l-4 border-red-400 rounded-r-lg">
+                        <span class="text-sm font-bold text-slate-600">θ₃ (Acoplador)</span>
+                        <div class="text-xl font-bold text-red-600"><span id="output-theta3">--</span>°</div>
+                    </div>
+                    <div class="flex items-center justify-between p-3 bg-slate-100 border-l-4 border-slate-400 rounded-r-lg">
+                        <span class="text-sm font-bold text-slate-600">θ₄ (Salida)</span>
+                        <div class="text-xl font-bold text-slate-700"><span id="output-theta4">--</span>°</div>
+                    </div>
+                </div>
+                
+                <!-- Grashof -->
+                <div class="mt-4 p-3 bg-slate-50 rounded border border-slate-200 text-center">
+                    <p id="grashof-text" class="text-sm font-medium text-slate-700">Calculando Grashof...</p>
+                </div>
+            </div>
+
+        </div>
+    </aside>
+
+    <!-- Canvas Panel -->
+    <main class="flex-1 relative bg-slate-50 flex items-center justify-center overflow-hidden" id="canvas-container">
+        <canvas id="sim-canvas"></canvas>
+        
+        <!-- UI Overlay for interaction instructions -->
+        <div class="absolute bottom-6 left-6 text-xs text-slate-400 font-medium bg-white/80 px-3 py-2 rounded-md shadow-sm backdrop-blur-sm">
+            El sistema se escala automáticamente. Eje +Y hacia arriba, +X a la derecha.
+        </div>
+    </main>
+
+    <script>
+        // DOM Elements
+        const canvas = document.getElementById('sim-canvas');
+        const ctx = canvas.getContext('2d');
+        const container = document.getElementById('canvas-container');
+        
+        const inA = document.getElementById('input-a');
+        const inB = document.getElementById('input-b');
+        const inC = document.getElementById('input-c');
+        const inD = document.getElementById('input-d');
+        const inThetaNum = document.getElementById('input-theta2-num');
+        const inThetaRange = document.getElementById('input-theta2');
+        const radioBranch = document.getElementsByName('branch');
+        
+        const outTheta3 = document.getElementById('output-theta3');
+        const outTheta4 = document.getElementById('output-theta4');
+        const statusBadge = document.getElementById('status-badge');
+        const grashofText = document.getElementById('grashof-text');
+
+        // State object
+        let state = {
+            a: 6, b: 7, c: 7, d: 9,
+            theta2_deg: 30,
+            branch: -1, // -1 for Abierta, 1 for Cruzada
+            isValid: true,
+            theta3_deg: 0,
+            theta4_deg: 0,
+            grashofCondition: ''
+        };
+
+        // Resize handler
+        function resizeCanvas() {
+            canvas.width = container.clientWidth;
+            canvas.height = container.clientHeight;
+            draw();
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+        // Event Listeners
+        function updateStateFromInputs() {
+            state.a = Math.max(0.01, parseFloat(inA.value) || 0.01);
+            state.b = Math.max(0.01, parseFloat(inB.value) || 0.01);
+            state.c = Math.max(0.01, parseFloat(inC.value) || 0.01);
+            state.d = Math.max(0.01, parseFloat(inD.value) || 0.01);
+            
+            // Sync slider and number input
+            if (this === inThetaNum) {
+                inThetaRange.value = inThetaNum.value;
+            } else if (this === inThetaRange) {
+                inThetaNum.value = inThetaRange.value;
+            }
+            state.theta2_deg = parseFloat(inThetaRange.value);
+
+            // Branch
+            for (const radio of radioBranch) {
+                if (radio.checked) {
+                    state.branch = parseInt(radio.value);
+                    break;
+                }
+            }
+
+            calculate();
+            draw();
+        }
+
+        inA.addEventListener('input', updateStateFromInputs);
+        inB.addEventListener('input', updateStateFromInputs);
+        inC.addEventListener('input', updateStateFromInputs);
+        inD.addEventListener('input', updateStateFromInputs);
+        inThetaNum.addEventListener('input', updateStateFromInputs);
+        inThetaRange.addEventListener('input', updateStateFromInputs);
+        for (const radio of radioBranch) {
+            radio.addEventListener('change', updateStateFromInputs);
+        }
+
+        // Math & Logic
+        function checkGrashof() {
+            const lengths = [state.a, state.b, state.c, state.d].sort((x, y) => x - y);
+            const S = lengths[0];
+            const L = lengths[3];
+            const P = lengths[1];
+            const Q = lengths[2];
+            
+            if (S + L < P + Q) {
+                state.grashofCondition = "Condición de Grashof (S+L < P+Q)";
+                // Determine inversion based on shortest link
+                if (S === state.a) state.grashofCondition += "<br><span class='text-xs text-slate-500'>Manivela-Balancín</span>";
+                else if (S === state.d) state.grashofCondition += "<br><span class='text-xs text-slate-500'>Doble Manivela</span>";
+                else if (S === state.b) state.grashofCondition += "<br><span class='text-xs text-slate-500'>Doble Balancín</span>";
+                else if (S === state.c) state.grashofCondition += "<br><span class='text-xs text-slate-500'>Balancín-Manivela</span>";
+            } else if (S + L > P + Q) {
+                state.grashofCondition = "No Grashof (S+L > P+Q)<br><span class='text-xs text-slate-500'>Ningún eslabón gira completo</span>";
+            } else {
+                state.grashofCondition = "Grashof Especial (S+L = P+Q)<br><span class='text-xs text-slate-500'>Posible puntos de cambio</span>";
+            }
+            
+            grashofText.innerHTML = state.grashofCondition;
+        }
+
+        function calculate() {
+            checkGrashof();
+            
+            const { a, b, c, d, theta2_deg, branch } = state;
+            const theta2 = theta2_deg * Math.PI / 180;
+            const sign = branch; // -1 for Abierta, +1 for Cruzada
+
+            // Constantes K
+            const K1 = d / a;
+            const K2 = d / c;
+            const K3 = (a*a - b*b + c*c + d*d) / (2 * a * c);
+            const K4 = d / b;
+            const K5 = (c*c - d*d - a*a - b*b) / (2 * a * b);
+
+            // Coeficientes para theta4
+            const A = Math.cos(theta2) - K1 - K2 * Math.cos(theta2) + K3;
+            const B = -2 * Math.sin(theta2);
+            const C = K1 - (K2 + 1) * Math.cos(theta2) + K3;
+            const disc4 = B*B - 4*A*C;
+
+            // Coeficientes para theta3
+            const D = Math.cos(theta2) - K1 + K4 * Math.cos(theta2) + K5;
+            const E = -2 * Math.sin(theta2);
+            const F = K1 + (K4 - 1) * Math.cos(theta2) + K5;
+            const disc3 = E*E - 4*D*F;
+
+            // Validación de Ensamblaje
+            if (disc4 < 0 || disc3 < 0) {
+                state.isValid = false;
+                statusBadge.textContent = "No Ensambla";
+                statusBadge.className = "px-2 py-1 text-[10px] font-bold uppercase rounded-full bg-red-100 text-red-700";
+                outTheta3.textContent = "--";
+                outTheta4.textContent = "--";
+                return;
+            }
+
+            state.isValid = true;
+            statusBadge.textContent = "Ensambla";
+            statusBadge.className = "px-2 py-1 text-[10px] font-bold uppercase rounded-full bg-green-100 text-green-700";
+
+            // Cálculos Finales usando arcotangente del medio ángulo
+            let t4 = 2 * Math.atan((-B + sign * Math.sqrt(disc4)) / (2 * A));
+            let t3 = 2 * Math.atan((-E + sign * Math.sqrt(disc3)) / (2 * D));
+
+            // Aseguramos formato en grados [-180, 180] legible
+            state.theta4_deg = t4 * 180 / Math.PI;
+            state.theta3_deg = t3 * 180 / Math.PI;
+
+            outTheta3.textContent = state.theta3_deg.toFixed(2);
+            outTheta4.textContent = state.theta4_deg.toFixed(2);
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const { a, b, c, d, theta2_deg, theta3_deg, theta4_deg, isValid } = state;
+            
+            // Determine scale to fit everything nicely
+            // Maximum possible reach from O2(0,0) is (a+b) or (d+c)
+            const maxReach = Math.max(a + b, d + c, a + c, d + b) * 1.1; 
+            
+            // Available space in canvas
+            const minDimension = Math.min(canvas.width, canvas.height);
+            // Dynamic scale (Pixels per unit)
+            const scale = (minDimension / 2) / maxReach;
+            
+            ctx.save();
+            // Transform origin: Center horizontally relative to 'd', center vertically
+            ctx.translate(canvas.width / 2 - (d * scale) / 2, canvas.height / 2);
+            // Invert Y axis so +Y goes UP
+            ctx.scale(scale, -scale);
+            
+            // Draw coordinate axis slightly (X axis)
+            ctx.beginPath();
+            ctx.strokeStyle = "rgba(0,0,0,0.1)";
+            ctx.lineWidth = 1/scale;
+            ctx.moveTo(-maxReach*2, 0);
+            ctx.lineTo(maxReach*2, 0);
+            ctx.stroke();
+
+            // Puntos fijos
+            const O2 = { x: 0, y: 0 };
+            const O4 = { x: d, y: 0 };
+
+            // Punto A (Manivela)
+            const theta2 = theta2_deg * Math.PI / 180;
+            const ptA = {
+                x: a * Math.cos(theta2),
+                y: a * Math.sin(theta2)
+            };
+
+            // Draw Dashed reference circles
+            ctx.lineWidth = 2 / scale;
+            
+            // Crank Circle (around O2)
+            ctx.beginPath();
+            ctx.setLineDash([5/scale, 5/scale]);
+            ctx.strokeStyle = "rgba(30, 58, 138, 0.2)"; // blueish
+            ctx.arc(O2.x, O2.y, a, 0, 2*Math.PI);
+            ctx.stroke();
+            
+            // Circles around A (radius b) and O4 (radius c) to show intersection logic
+            ctx.beginPath();
+            ctx.setLineDash([4/scale, 8/scale]);
+            ctx.strokeStyle = "rgba(0, 0, 0, 0.15)";
+            ctx.arc(ptA.x, ptA.y, b, 0, 2*Math.PI);
+            ctx.stroke();
+            
+            ctx.beginPath();
+            ctx.arc(O4.x, O4.y, c, 0, 2*Math.PI);
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Draw link d (Bancada)
+            ctx.beginPath();
+            ctx.strokeStyle = "#cbd5e1"; // slate-300
+            ctx.lineWidth = 8 / scale;
+            ctx.lineCap = "round";
+            ctx.moveTo(O2.x, O2.y);
+            ctx.lineTo(O4.x, O4.y);
+            ctx.stroke();
+
+            if (isValid) {
+                // Calcular B
+                const theta4 = theta4_deg * Math.PI / 180;
+                const ptB = {
+                    x: d + c * Math.cos(theta4),
+                    y: c * Math.sin(theta4)
+                };
+
+                // Link c (Salida)
+                ctx.beginPath();
+                ctx.strokeStyle = "#94a3b8"; // slate-400
+                ctx.moveTo(O4.x, O4.y);
+                ctx.lineTo(ptB.x, ptB.y);
+                ctx.stroke();
+
+                // Link b (Acoplador) - dibujado con color destacando
+                ctx.beginPath();
+                ctx.strokeStyle = "#ef4444"; // red-500 para igualar el color de theta3 UI
+                ctx.moveTo(ptA.x, ptA.y);
+                ctx.lineTo(ptB.x, ptB.y);
+                ctx.stroke();
+                
+                // Draw joint B
+                drawJoint(ptB.x, ptB.y, scale);
+            }
+
+            // Link a (Manivela)
+            ctx.beginPath();
+            ctx.strokeStyle = "#1e3a8a"; // dark blue
+            ctx.lineWidth = 8 / scale;
+            ctx.moveTo(O2.x, O2.y);
+            ctx.lineTo(ptA.x, ptA.y);
+            ctx.stroke();
+
+            // Draw joints A, O2, O4
+            drawJoint(ptA.x, ptA.y, scale);
+            drawJoint(O2.x, O2.y, scale, true); // Grounded
+            drawJoint(O4.x, O4.y, scale, true); // Grounded
+
+            ctx.restore();
+        }
+
+        // Helper para dibujar las juntas (círculos blancos)
+        function drawJoint(x, y, scale, isGround = false) {
+            ctx.beginPath();
+            ctx.fillStyle = "white";
+            ctx.strokeStyle = isGround ? "#64748b" : "#334155";
+            ctx.lineWidth = 2 / scale;
+            const radius = 5 / scale;
+            ctx.arc(x, y, radius, 0, 2*Math.PI);
+            ctx.fill();
+            ctx.stroke();
+            
+            if (isGround) {
+                // Dibujar sombra de anclaje a tierra si se desea
+                ctx.beginPath();
+                ctx.moveTo(x - radius*1.5, y - radius);
+                ctx.lineTo(x + radius*1.5, y - radius);
+                ctx.stroke();
+                for(let i=-1; i<=1; i++) {
+                    ctx.beginPath();
+                    ctx.moveTo(x + i*radius - radius*0.5, y - radius);
+                    ctx.lineTo(x + i*radius - radius*1.5, y - radius*2.5);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        // Init
+        resizeCanvas();
+        updateStateFromInputs();
+        
+    </script>
+</body>
+</html>
