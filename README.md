@@ -13,7 +13,7 @@ Calculadora de mecanismos: Síntesis Algebraica
 5. Detección de Grashof: Verifica en tiempo real la sumatoria del eslabón más corto y más largo vs los demás, avisando interactivamente al usuario si está frente a un mecanismo que gire totalmente (manivela-balancín) o si limitará su movimiento (no-grashof), explicando visualmente si no ensambla porque los círculos de la manivela y el balancín dejan de intersectarse.
 
 
-- Simulador Universal
+Simulador Universal
 El simulador ha sido expandido para abarcar nuevas topologías cinemáticas, convirtiéndose en una herramienta de análisis de posición universal. Las actualizaciones incluyen la implementación matemática y visual de los mecanismos de Manivela-Corredera y Corredera-Manivela, basados en el método analítico de lazo vectorial.
 
 CARACTERÍSTICAS AGREGADAS: 
@@ -23,21 +23,18 @@ CARACTERÍSTICAS AGREGADAS:
     Corredera-Manivela (Traslación a Rotación).
 
 2. Interfaz Dinámica e Interactiva: Las etiquetas y los campos de entrada se adaptan automáticamente según el modo seleccionado.
-    En los modos con corredera, el parámetro c pasa a representar el descentrado (offset) y       el parámetro d representa la posición de la corredera.
-
-    El campo de entrada cambia lógicamente: en el modo Manivela-Corredera se bloquea d (es el     resultado) y se ingresa el ángulo θ_2; en el modo Corredera-Manivela se bloquea θ_2 (es       el resultado visual y numérico) y se ingresa la posición d.
+En los modos con corredera, el parámetro c pasa a representar el descentrado (offset) y el parámetro d representa la posición de la corredera.
+El campo de entrada cambia lógicamente: en el modo Manivela-Corredera se bloquea d (es el resultado) y se ingresa el ángulo θ_2; en el modo Corredera-Manivela se      bloquea θ_2 (es el resultado visual y numérico) y se ingresa la posición d.
 
 3. Motor de Cálculo Analítico Mejorado:
+Manivela-Corredera: Implementación de las funciones de arcoseno para calcular el ángulo del acoplador θ_3 y la posición de la corredera d para los circuitosabierto y cruzado.
+Corredera-Manivela: Resolución de la ecuación cuadrática (discriminante) y uso del método de la tangente de medio ángulo (con atan2) para calcular con exactitud los ángulos de la manivela θ_2 y el acoplador θ_3 en sus dos ramas (Rama 1 y Rama 2).
 
-  Manivela-Corredera: Implementación de las funciones de arcoseno para calcular el ángulo del   acoplador θ_3 y la posición de la corredera d para los circuitos abierto y cruzado.
-
-  Corredera-Manivela: Resolución de la ecuación cuadrática (discriminante) y uso del método     de la tangente de medio ángulo (con atan2) para calcular con exactitud los ángulos de la      manivela θ_2 y el acoplador θ_3 en sus dos ramas (Rama 1 y Rama 2).
-
-  Validación de Ensamblaje: Se integraron validaciones matemáticas para evitar errores NaN.     Si el valor absoluto en el arcoseno es mayor a 1, o si el discriminante es negativo, la UI    alerta claramente al usuario con una equeta de "No ensambla".
+Validación de Ensamblaje: Se integraron validaciones matemáticas para evitar errores NaN. Si el valor absoluto en el arcoseno es mayor a 1, o si el discriminante es negativo, la UI alerta claramente al usuario con una equeta de "No ensambla".
 
 4. Actualización del Renderizado:
 
-  Se añadió la lógica de dibujo para representar visualmente el eje de deslizamiento, el        descentrado y el bloque de la corredera.
+Se añadió la lógica de dibujo para representar visualmente el eje de deslizamiento, el descentrado y el bloque de la corredera.
 
-  El autoescalado del canvas fue ajustado para considerar el máximo alcance dinámico de la      corredera dependiiendo si el mecanismo es válido o si se encuentra en un punto donde no se    arma. 
+El autoescalado del canvas fue ajustado para considerar el máximo alcance dinámico de la corredera dependiiendo si el mecanismo es válido o si se encuentra en un punto donde no se arma. 
 
